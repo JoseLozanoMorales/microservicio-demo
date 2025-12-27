@@ -8,24 +8,23 @@ import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Service;
 
 import java.sql.Types;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class MarcaService {
 
-    private final SimpleJdbcCall insertarMarca;
+    private final JdbcTemplate jdbc;
 
-    public MarcaService(JdbcTemplate jdbcTemplate) {
-        this.insertarMarca = new SimpleJdbcCall(jdbcTemplate)
-                .withSchemaName("public")
-                .withProcedureName("insertar_marca")
-                .declareParameters(
-                        new SqlParameter("p_nombre", Types.VARCHAR)
-                );
+    public MarcaService(JdbcTemplate jdbc) {
+        this.jdbc = jdbc;
     }
 
-    public void insertar(MarcaCreateRequest r) {
-        var in = new MapSqlParameterSource()
-                .addValue("p_nombre", r.nombre());
-        insertarMarca.execute(in);
+    public List<Map<String, Object>> listar() {
+        return jdbc.queryForList("SELECT * FROM fn_listar_marcas()");
+    }
+
+    public void insertar(MarcaCreateRequest req) {
+        // tu insert actual o llamar función/procedure
     }
 }

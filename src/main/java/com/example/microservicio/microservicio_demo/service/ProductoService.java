@@ -18,7 +18,7 @@ public class ProductoService {
         this.insertarProducto = new SimpleJdbcCall(jdbcTemplate)
                 .withSchemaName("public")
                 .withProcedureName("insertar_producto")
-                // para evitar problemas de metadata, declaramos parámetros:
+                .withoutProcedureColumnMetaDataAccess()
                 .declareParameters(
                         new SqlParameter("p_nombre", Types.VARCHAR),
                         new SqlParameter("p_descripcion", Types.VARCHAR),
@@ -32,6 +32,7 @@ public class ProductoService {
                         new SqlParameter("p_id_marca", Types.INTEGER),
                         new SqlParameter("p_id_categoria", Types.INTEGER)
                 );
+
     }
 
     public void insertar(ProductoCreateRequest r) {

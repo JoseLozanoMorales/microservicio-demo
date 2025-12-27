@@ -14,20 +14,14 @@ import java.util.Map;
 public class MarcaController {
 
     private final MarcaService service;
-    private final JdbcTemplate jdbc;
 
-    public MarcaController(MarcaService service, JdbcTemplate jdbc) {
+    public MarcaController(MarcaService service) {
         this.service = service;
-        this.jdbc = jdbc;
     }
 
     @GetMapping
     public List<Map<String, Object>> listar() {
-        return jdbc.queryForList("""
-                SELECT id_marca, nombre
-                FROM marca
-                ORDER BY id_marca
-                """);
+        return service.listar();
     }
 
     @PostMapping
@@ -36,3 +30,4 @@ public class MarcaController {
         return ResponseEntity.ok().build();
     }
 }
+
