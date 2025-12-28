@@ -29,5 +29,6 @@ public class MarcaController {
         service.insertar(req);
         return ResponseEntity.ok().build();
     }
+
 }
 

@@ -333,8 +333,13 @@
 
         <div class="input-group">
             <input type="text" id="newCategory" placeholder="Nueva categoría">
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="newCategoryDesc" placeholder="Descripción (opcional)">
             <button class="btn-add" onclick="addCategory()">Agregar</button>
         </div>
+
 
         <div id="categoriesList"></div>
     </div>
@@ -486,19 +491,26 @@
     }
 
     async function addCategory() {
-      const input = document.getElementById("newCategory");
-      const value = input.value.trim();
-      if (!value) { alert("Por favor ingresa un nombre para la categoría"); return; }
+      const inputNombre = document.getElementById("newCategory");
+      const inputDesc = document.getElementById("newCategoryDesc");
+
+      const nombre = inputNombre.value.trim();
+      const descripcion = (inputDesc?.value || "").trim() || "Sin descripción";
+
+      if (!nombre) {
+        alert("Por favor ingresa un nombre para la categoría");
+        return;
+      }
 
       try {
-        // Tu PROCEDURE necesita nombre + descripcion.
-        // Como el modal solo pide nombre, mandamos una descripción por defecto.
         await apiFetch(API.categorias, {
           method: "POST",
-          body: JSON.stringify({ nombre: value, descripcion: "Sin descripción" })
+          body: JSON.stringify({ nombre, descripcion })
         });
 
-        input.value = "";
+        inputNombre.value = "";
+        if (inputDesc) inputDesc.value = "";
+
         await loadCategorias();
         populateSelects();
         renderCategories();
@@ -508,6 +520,7 @@
         showAlert("Error agregando categoría: " + e.message, "error");
       }
     }
+
 
     function renderBrands() {
       const list = document.getElementById("brandsList");
