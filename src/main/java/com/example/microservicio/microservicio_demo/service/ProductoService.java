@@ -91,8 +91,15 @@ public class ProductoService {
         eliminarImagenCall.execute(in);
     }
 
+    public List<Map<String, Object>> listar() {
+        return jdbcTemplate.queryForList("SELECT * FROM fn_listar_productos()");
+    }
+
     public List<Map<String, Object>> listarImagenes(Integer idProducto) {
-        String sql = "SELECT * FROM producto_imagenes WHERE id_producto = ? ORDER BY id_imagen ASC";
-        return jdbcTemplate.queryForList(sql, idProducto);
+        return jdbcTemplate.queryForList("SELECT * FROM fn_listar_imagenes_producto(?)", idProducto);
+    }
+
+    public byte[] obtenerImagenContenido(Integer idImagen) {
+        return jdbcTemplate.queryForObject("SELECT fn_obtener_imagen_blob(?)", byte[].class, idImagen);
     }
 }

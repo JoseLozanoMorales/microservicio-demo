@@ -1,4 +1,4 @@
-package com.example.microservicio.microservicio_demo;
+package com.example.microservicio.microservicio_demo.controller;
 
 import com.example.microservicio.microservicio_demo.dto.ProductoCreateRequest;
 import com.example.microservicio.microservicio_demo.dto.ProductoImagenCreateRequest;
@@ -29,21 +29,7 @@ public class ProductosController {
 
     @GetMapping
     public List<Map<String, Object>> listar() {
-        // Consulta actualizada para soportar la nueva tabla producto_imagenes
-        // Obtiene la imagen marcada como portada (portada = true)
-        String sql = """
-            SELECT p.id_producto, p.nombre, p.descripcion, p.precio, p.stock, 
-                   p.descuento, p.valoracion, p.fecha_ingreso, p.estado, 
-                   m.nombre as marca, c.nombre as categoria,
-                   (SELECT '/api/productos/imagenes/render/' || CAST(pi.id_imagen AS VARCHAR) 
-                    FROM producto_imagenes pi 
-                    WHERE pi.id_producto = p.id_producto AND pi.portada = true LIMIT 1) as imagen
-            FROM productos p
-            LEFT JOIN marca m ON p.id_marca = m.id_marca
-            LEFT JOIN categoria c ON p.id_categoria = c.id_categoria
-            ORDER BY p.id_producto DESC
-        """;
-        return jdbc.queryForList(sql);
+        return service.listar();
     }
 
     @PostMapping
@@ -106,7 +92,7 @@ public class ProductosController {
             String sql = "SELECT imagen FROM producto_imagenes WHERE id_imagen = ?";
             byte[] imagen = jdbc.queryForObject(sql, byte[].class, idImagen);
             return ResponseEntity.ok()
-                    .contentType(org.springframework.http.MediaType.IMAGE_JPEG) // O detecta el tipo si es necesario
+                    .contentType(org.springframework.http.MediaType.IMAGE_JPEG)
                     .body(imagen);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
