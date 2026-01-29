@@ -242,46 +242,6 @@
                                 `}
                             </div>
 
-                            <!-- Cantidad -->
-                            <div class="mb-4">
-                                <label class="block text-sm font-medium mb-2">Cantidad:</label>
-                                <select
-                                    id="selectCantidad"
-                                    onchange="cambiarCantidad()"
-                                    ${!disponible ? 'disabled' : ''}
-                                    class="border border-gray-300 rounded-lg px-3 py-2 w-20 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    ${Array.from({length: Math.min(10, producto.stock)}, (_, i) => `
-                                        <option value="${i + 1}">${i + 1}</option>
-                                    `).join('')}
-                                </select>
-                            </div>
-
-                            <!-- Botones -->
-                            <div class="space-y-2">
-                                <button
-                                    onclick="agregarAlCarrito()"
-                                    ${!disponible ? 'disabled' : ''}
-                                    class="w-full py-3 rounded-full font-medium ${
-                                        disponible
-                                            ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
-                                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    }"
-                                >
-                                    Agregar al carrito
-                                </button>
-                                <button
-                                    onclick="comprarAhora()"
-                                    ${!disponible ? 'disabled' : ''}
-                                    class="w-full py-3 rounded-full font-medium ${
-                                        disponible
-                                            ? 'bg-orange-500 hover:bg-orange-600 text-white'
-                                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    }"
-                                >
-                                    Comprar ahora
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>

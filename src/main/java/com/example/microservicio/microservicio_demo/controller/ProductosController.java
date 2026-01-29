@@ -1,19 +1,15 @@
 package com.example.microservicio.microservicio_demo.controller;
 
 import com.example.microservicio.microservicio_demo.dto.ProductoCreateRequest;
-import com.example.microservicio.microservicio_demo.dto.ProductoImagenCreateRequest;
 import com.example.microservicio.microservicio_demo.service.ProductoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
 
 @RestController
 @CrossOrigin
