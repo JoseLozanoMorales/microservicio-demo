@@ -1,0 +1,14 @@
+com\example\microservicio\microservicio_demo\DbTestController.class
+com\example\microservicio\microservicio_demo\dto\CategoriaCreateRequest.class
+com\example\microservicio\microservicio_demo\controller\ProductosController.class
+com\example\microservicio\microservicio_demo\controller\MarcaController.class
+com\example\microservicio\microservicio_demo\dto\MarcaCreateRequest.class
+com\example\microservicio\microservicio_demo\HolaMundoController.class
+com\example\microservicio\microservicio_demo\service\ProductoService.class
+com\example\microservicio\microservicio_demo\WebConfig.class
+com\example\microservicio\microservicio_demo\controller\CategoriaController.class
+com\example\microservicio\microservicio_demo\dto\ProductoCreateRequest.class
+com\example\microservicio\microservicio_demo\service\MarcaService.class
+com\example\microservicio\microservicio_demo\dto\ProductoImagenCreateRequest.class
+com\example\microservicio\microservicio_demo\MicroservicioDemoApplication.class
+com\example\microservicio\microservicio_demo\service\CategoriaService.class

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Producto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-white min-h-screen">
+    <!-- Header simplificado -->
+    <div class="bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <a href="Catalogo.html" class="flex items-center gap-2 text-white hover:text-gray-300">
+                <i class="fas fa-chevron-left"></i>
+                Volver al catálogo
+            </a>
+        </div>
+    </div>
+
+    <div id="contenidoProducto" class="max-w-7xl mx-auto px-4 py-8">
+        <!-- El contenido se cargará aquí dinámicamente -->
+    </div>
+
+    <script>
+        let cantidadSeleccionada = 1;
+        let productoActual = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            iniciarCarga();
+        });
+
+        function categoryEmoji(category) {
+            var c = (category || '').toLowerCase();
+            if (c.indexOf('proces') !== -1 || c.indexOf('cpu') !== -1) return '🧠';
+            if (c.indexOf('tarjeta') !== -1 || c.indexOf('gpu') !== -1) return '🎮';
+            if (c.indexOf('almac') !== -1 || c.indexOf('ssd') !== -1 || c.indexOf('hdd') !== -1) return '💿';
+            if (c.indexOf('ram') !== -1 || c.indexOf('memoria') !== -1) return '💾';
+            if (c.indexOf('placa') !== -1 || c.indexOf('mother') !== -1) return '🔧';
+            return '🧩';
+        }
+
+        function calcularPrecioFinal(precio, descuento) {
+            return descuento > 0 ? precio * (1 - descuento / 100) : precio;
+        }
+
+        function renderEstrellas(valoracion, size = 'text-base') {
+            let html = '';
+            const fullStars = Math.floor(valoracion);
+            const hasHalfStar = valoracion % 1 >= 0.5;
+
+            for (let i = 0; i < 5; i++) {
+                if (i < fullStars) {
+                    html += `<i class="fas fa-star text-yellow-400 ${size}"></i>`;
+                } else if (i === fullStars && hasHalfStar) {
+                    html += `<i class="fas fa-star-half-alt text-yellow-400 ${size}"></i>`;
+                } else {
+                    html += `<i class="far fa-star text-gray-300 ${size}"></i>`;
+                }
+            }
+            return html;
+        }
+
+        async function iniciarCarga() {
+            const idProducto = parseInt(localStorage.getItem('productoSeleccionado'));
+            
+            if (!idProducto) {
+                document.getElementById('contenidoProducto').innerHTML = `
+                    <div class="text-center py-12">
+                        <h2 class="text-2xl font-bold text-gray-700">No se seleccionó ningún producto</h2>
+                        <a href="Catalogo.html" class="text-blue-600 hover:underline mt-4 inline-block">Volver al catálogo</a>
+                    </div>`;
+                return;
+            }
+
+            try {
+                // 1. Obtener producto por ID directamente de la BD
+                const res = await fetch(`/api/productos/${idProducto}`);
+                if (!res.ok) {
+                    if (res.status === 404) throw new Error('Producto no encontrado en la base de datos');
+                    throw new Error('Error al cargar el producto');
+                }
+                const productoRaw = await res.json();
+
+                // 2. Obtener imágenes del producto
+                let imagenes = [];
+                try {
+                    const resImg = await fetch(`/api/productos/${idProducto}/imagenes`);
+                    if (resImg.ok) imagenes = await resImg.json();
+                } catch (e) {
+                    console.warn("No se pudieron cargar las imágenes", e);
+                }
+
+                // 3. Mapear datos
+                productoActual = {
+                    ...productoRaw,
+                    id_producto: productoRaw.id_producto || productoRaw.id,
+                    precio: Number(productoRaw.precio || 0),
+                    stock: Number(productoRaw.stock || 0),
+                    descuento: Number(productoRaw.descuento || 0),
+                    valoracion: Number(productoRaw.valoracion || 0),
+                    marca: productoRaw.marca || 'Genérica',
+                    categoria: productoRaw.categoria || 'General',
+                    imagenesLista: imagenes,
+                    // Datos simulados que no vienen en la API actual
+                    caracteristicas: {
+                        "Disponibilidad": (productoRaw.stock > 0) ? "En Stock" : "Agotado"
+                    }
+                };
+
+                renderProducto(productoActual);
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('contenidoProducto').innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-6xl mb-4">😕</div>
+                        <h2 class="text-2xl font-bold text-gray-700">Producto no encontrado</h2>
+                        <p class="text-gray-500 mt-2">${error.message}</p>
+                        <a href="Catalogo.html" class="text-blue-600 hover:underline mt-4 inline-block">Volver al catálogo</a>
+                    </div>`;
+            }
+        }
+
+        function renderProducto(producto) {
+            const precioFinal = calcularPrecioFinal(producto.precio, producto.descuento);
+            const disponible = producto.stock > 0;
+            const ahorro = producto.descuento > 0 ? (producto.precio - precioFinal).toFixed(2) : 0;
+            
+            // Lógica para limpiar la descripción
+            let descripcionMostrar = producto.descripcion;
+            if (!descripcionMostrar || descripcionMostrar === 'Creado desde panel admin') {
+                descripcionMostrar = 'Sin descripción';
+            }
+
+            // Preparar HTML de imágenes
+            let mainImageHtml = `<div class="text-9xl">${categoryEmoji(producto.categoria)}</div>`;
+            let thumbnailsHtml = '';
+
+            if (producto.imagenesLista && producto.imagenesLista.length > 0) {
+                // Usar la primera imagen como principal
+                mainImageHtml = `<img id="mainImgDisplay" src="${producto.imagenesLista[0].url}" class="w-full h-full object-contain" alt="${producto.nombre}">`;
+                
+                thumbnailsHtml = producto.imagenesLista.map((img, i) => `
+                    <button onclick="cambiarImagen('${img.url}', ${i})" id="miniatura-${i}" 
+                        class="bg-white rounded-lg aspect-square flex items-center justify-center border-2 overflow-hidden ${i === 0 ? 'border-blue-600' : 'border-transparent'}">
+                        <img src="${img.url}" class="w-full h-full object-cover">
+                    </button>
+                `).join('');
+            } else {
+                // Si no hay imágenes en la galería, ver si hay una imagen principal en el objeto producto
+                if (producto.imagen) {
+                     mainImageHtml = `<img id="mainImgDisplay" src="${producto.imagen}" class="w-full h-full object-contain" alt="${producto.nombre}">`;
+                }
+            }
+
+            const contenido = `
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <!-- Galería de imágenes -->
+                    <div class="space-y-4">
+                        <div id="imagenPrincipal" class="bg-white border border-gray-200 rounded-lg aspect-square flex items-center justify-center overflow-hidden p-4">
+                            ${mainImageHtml}
+                        </div>
+                        <div class="grid grid-cols-4 gap-2">
+                            ${thumbnailsHtml}
+                        </div>
+                    </div>
+
+                    <!-- Información del producto -->
+                    <div>
+                        <div class="text-blue-600 font-medium mb-2">
+                            Marca: ${producto.marca}
+                        </div>
+                        <h1 class="text-2xl lg:text-3xl font-normal text-gray-900 mb-4">${producto.nombre}</h1>
+
+                        <!-- Valoración -->
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="flex">
+                                ${renderEstrellas(producto.valoracion, 'text-lg')}
+                            </div>
+                            <span class="text-blue-600 font-medium text-lg">
+                                ${producto.valoracion.toFixed(1)}
+                            </span>
+                        </div>
+
+                        <div class="border-t border-b border-gray-300 py-4 mb-6">
+                            <!-- Precio -->
+                            ${producto.descuento > 0 ? `
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-3">
+                                        <span class="bg-red-600 text-white px-2 py-1 text-sm font-semibold">
+                                            -${producto.descuento}%
+                                        </span>
+                                        <span class="text-3xl font-normal text-red-600">
+                                            US$${precioFinal.toFixed(2)}
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-600">
+                                        Precio anterior: <span class="line-through">US$${producto.precio.toFixed(2)}</span>
+                                    </div>
+                                    <div class="text-sm text-gray-700">
+                                        Ahorras: <span class="text-red-600 font-semibold">US$${ahorro}</span> (${producto.descuento}%)
+                                    </div>
+                                </div>
+                            ` : `
+                                <div class="text-3xl font-normal text-gray-900">
+                                    US$${producto.precio.toFixed(2)}
+                                </div>
+                            `}
+                        </div>
+
+                        <!-- Características principales -->
+                        <div class="mb-6">
+                            <h3 class="font-bold text-lg mb-3">Acerca de este artículo</h3>
+                            <div class="space-y-2 text-sm">
+                                <p class="text-gray-700">${descripcionMostrar}</p>
+                            </div>
+                        </div>
+
+                        <!-- Panel de compra -->
+                        <div class="border border-gray-300 rounded-lg p-6">
+                            <!-- Precio destacado -->
+                            <div class="text-3xl font-normal text-red-600 mb-2">
+                                US$${precioFinal.toFixed(2)}
+                            </div>
+
+                            <!-- Stock -->
+                            <div class="mb-4">
+                                ${disponible ? `
+                                    <div class="text-green-700 font-medium text-lg">
+                                        En stock
+                                    </div>
+                                    ${producto.stock < 50 ? `
+                                        <div class="text-orange-600 text-sm">
+                                            Solo quedan ${producto.stock} en stock
+                                        </div>
+                                    ` : ''}
+                                ` : `
+                                    <div class="text-red-600 font-medium text-lg">
+                                        No disponible
+                                    </div>
+                                `}
+                            </div>
+
+                            <!-- Cantidad -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium mb-2">Cantidad:</label>
+                                <select
+                                    id="selectCantidad"
+                                    onchange="cambiarCantidad()"
+                                    ${!disponible ? 'disabled' : ''}
+                                    class="border border-gray-300 rounded-lg px-3 py-2 w-20 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    ${Array.from({length: Math.min(10, producto.stock)}, (_, i) => `
+                                        <option value="${i + 1}">${i + 1}</option>
+                                    `).join('')}
+                                </select>
+                            </div>
+
+                            <!-- Botones -->
+                            <div class="space-y-2">
+                                <button
+                                    onclick="agregarAlCarrito()"
+                                    ${!disponible ? 'disabled' : ''}
+                                    class="w-full py-3 rounded-full font-medium ${
+                                        disponible
+                                            ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
+                                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    }"
+                                >
+                                    Agregar al carrito
+                                </button>
+                                <button
+                                    onclick="comprarAhora()"
+                                    ${!disponible ? 'disabled' : ''}
+                                    class="w-full py-3 rounded-full font-medium ${
+                                        disponible
+                                            ? 'bg-orange-500 hover:bg-orange-600 text-white'
+                                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    }"
+                                >
+                                    Comprar ahora
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de detalles adicionales -->
+                <div class="mt-12 border-t pt-8">
+                    <h2 class="text-2xl font-bold mb-6">Detalles del producto</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <!-- Información del producto -->
+                        <div>
+                            <h3 class="font-bold mb-4">Información del producto</h3>
+                            <table class="w-full text-sm">
+                                <tbody>
+                                    <tr class="border-b">
+                                        <td class="py-2 text-gray-600">Marca</td>
+                                        <td class="py-2 font-medium">${producto.marca}</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2 text-gray-600">Categoría</td>
+                                        <td class="py-2 font-medium">${producto.categoria}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Descripción detallada -->
+                        <div>
+                            <h3 class="font-bold mb-4">Descripción</h3>
+                            <p class="text-gray-700 text-sm leading-relaxed">
+                                ${descripcionMostrar}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('contenidoProducto').innerHTML = contenido;
+        }
+
+        function cambiarImagen(url, index) {
+            // Cambiar imagen principal
+            const mainImg = document.getElementById('mainImgDisplay');
+            if (mainImg) mainImg.src = url;
+
+            // Remover borde de todas las miniaturas
+            for (let i = 0; i < 10; i++) {
+                const miniatura = document.getElementById(`miniatura-${i}`);
+                if (miniatura) {
+                    miniatura.classList.remove('border-blue-600');
+                    miniatura.classList.add('border-transparent');
+                }
+            }
+            
+            // Agregar borde a la miniatura seleccionada
+            const miniaturaSeleccionada = document.getElementById(`miniatura-${index}`);
+            if (miniaturaSeleccionada) {
+                miniaturaSeleccionada.classList.remove('border-transparent');
+                miniaturaSeleccionada.classList.add('border-blue-600');
+            }
+        }
+
+        function cambiarCantidad() {
+            cantidadSeleccionada = parseInt(document.getElementById('selectCantidad').value);
+        }
+
+        function agregarAlCarrito() {
+            alert(`Agregado al carrito: ${cantidadSeleccionada} unidad(es)`);
+        }
+
+        function comprarAhora() {
+            alert(`Compra inmediata: ${cantidadSeleccionada} unidad(es)`);
+        }
+
+        function agregarALista() {
+            alert('Producto agregado a tu lista de deseos');
+        }
+
+        function compartir() {
+            if (navigator.share) {
+                navigator.share({
+                    title: document.title,
+                    url: window.location.href
+                });
+            } else {
+                alert('Compartir: ' + window.location.href);
+            }
+        }
+
+        function volverCatalogo() {
+            window.location.href = 'catalogo-productos.html';
+        }
+    </script>
+</body>
+</html>
