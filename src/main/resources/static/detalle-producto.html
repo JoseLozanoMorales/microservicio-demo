@@ -104,9 +104,7 @@
                     imagenesLista: imagenes,
                     // Datos simulados que no vienen en la API actual
                     caracteristicas: {
-                        "Condición": "Nuevo",
-                        "Disponibilidad": (productoRaw.stock > 0) ? "En Stock" : "Agotado",
-                        "Garantía": "12 meses directa"
+                        "Disponibilidad": (productoRaw.stock > 0) ? "En Stock" : "Agotado"
                     }
                 };
 
@@ -219,33 +217,11 @@
                             </div>
                         </div>
 
-                        <!-- Especificaciones -->
-                        <div class="bg-gray-50 rounded-lg p-4 mb-6">
-                            <h3 class="font-bold mb-3">Especificaciones</h3>
-                            <div class="grid grid-cols-2 gap-3 text-sm">
-                                ${Object.entries(producto.caracteristicas).map(([key, value]) => `
-                                    <div>
-                                        <span class="text-gray-600 capitalize">${key.replace(/_/g, ' ')}:</span>
-                                        <div class="font-medium text-gray-900">${value}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-
                         <!-- Panel de compra -->
                         <div class="border border-gray-300 rounded-lg p-6">
                             <!-- Precio destacado -->
                             <div class="text-3xl font-normal text-red-600 mb-2">
                                 US$${precioFinal.toFixed(2)}
-                            </div>
-
-                            <!-- Envío -->
-                            <div class="flex items-start gap-2 text-sm text-gray-700 mb-4">
-                                <i class="fas fa-truck text-blue-600 mt-1"></i>
-                                <div>
-                                    <div class="font-medium">Envío GRATIS</div>
-                                    <div class="text-gray-600">Llega entre lunes, 27 de enero - martes, 28 de enero</div>
-                                </div>
                             </div>
 
                             <!-- Stock -->
@@ -306,30 +282,6 @@
                                     Comprar ahora
                                 </button>
                             </div>
-
-                            <!-- Iconos de acción -->
-                            <div class="flex gap-4 mt-4 pt-4 border-t">
-                                <button onclick="agregarALista()" class="flex items-center gap-2 text-sm text-gray-700 hover:text-blue-600">
-                                    <i class="far fa-heart"></i>
-                                    Agregar a lista
-                                </button>
-                                <button onclick="compartir()" class="flex items-center gap-2 text-sm text-gray-700 hover:text-blue-600">
-                                    <i class="fas fa-share-alt"></i>
-                                    Compartir
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Garantías -->
-                        <div class="mt-6 space-y-3">
-                            <div class="flex items-center gap-3 text-sm text-gray-700">
-                                <i class="fas fa-shield-alt text-blue-600"></i>
-                                <span>Transacción segura</span>
-                            </div>
-                            <div class="flex items-center gap-3 text-sm text-gray-700">
-                                <i class="fas fa-undo-alt text-blue-600"></i>
-                                <span>Devoluciones fáciles dentro de 30 días</span>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -351,14 +303,6 @@
                                     <tr class="border-b">
                                         <td class="py-2 text-gray-600">Categoría</td>
                                         <td class="py-2 font-medium">${producto.categoria}</td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="py-2 text-gray-600">Fecha de ingreso</td>
-                                        <td class="py-2 font-medium">${new Date(producto.fecha_ingreso).toLocaleDateString()}</td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td class="py-2 text-gray-600">ID del producto</td>
-                                        <td class="py-2 font-medium">#${producto.id_producto}</td>
                                     </tr>
                                 </tbody>
                             </table>
