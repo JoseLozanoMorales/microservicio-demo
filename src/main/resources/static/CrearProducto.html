@@ -273,6 +273,11 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="productDesc" rows="3" placeholder="Describe las características principales..."></textarea>
+                </div>
+
+                <div class="form-group">
                     <label>Precio ($)</label>
                     <input type="number" id="productPrice" step="0.01" placeholder="0.00" required>
                 </div>
@@ -659,6 +664,7 @@
       editingId = null;
       document.getElementById("formTitle").textContent = "Agregar Nuevo Producto";
       document.getElementById("submitBtn").textContent = "Agregar Producto";
+      document.getElementById("productDesc").value = "";
     }
 
     document.getElementById("productForm").addEventListener("submit", async function(e) {
@@ -670,6 +676,7 @@
       }
 
       const nombre = document.getElementById("productName").value.trim();
+      const descripcion = document.getElementById("productDesc").value.trim();
       const precio = Number(document.getElementById("productPrice").value);
       const idCategoria = Number(document.getElementById("productCategory").value);
       const idMarca = Number(document.getElementById("productBrand").value);
@@ -684,8 +691,7 @@
 
       const payload = {
         nombre: nombre,
-        // No tienes campo descripción en el formulario: ponemos algo básico.
-        descripcion: "Creado desde panel admin",
+        descripcion: descripcion || "Sin descripción",
         precio: precio,
         stock: stock,
         descuento: 0,

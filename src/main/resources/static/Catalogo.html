@@ -458,11 +458,11 @@
             var stockLabel = product.stock > 0 ? ('Stock: ' + product.stock) : 'Sin stock';
 
             html += '<div class="product-card">';
-            html +=   '<div class="product-image">' + imgHtml + '</div>';
+            html +=   '<div class="product-image" style="cursor:pointer" onclick="verDetalle(' + product.id + ')">' + imgHtml + '</div>';
             html +=   '<div class="product-info">';
             html +=     '<div class="product-header">';
             html +=       '<div>';
-            html +=         '<h3 class="product-name">' + product.name + '</h3>';
+            html +=         '<h3 class="product-name" style="cursor:pointer" onclick="verDetalle(' + product.id + ')">' + product.name + '</h3>';
             if (product.brand) {
                 html +=       '<div style="font-size:0.8rem; color:#6b7280; margin-top:0.25rem;">Marca: ' + product.brand + '</div>';
             }
@@ -518,6 +518,11 @@
         if (event && event.target) event.target.classList.add('active');
 
         filterProducts();
+    }
+
+    function verDetalle(id) {
+        localStorage.setItem('productoSeleccionado', id);
+        window.location.href = 'detalle-producto.html';
     }
 
     // === CARRITO ===

@@ -15,19 +15,9 @@ import java.util.Map;
 public class CategoriaService {
 
     private final JdbcTemplate jdbc;
-    private final SimpleJdbcCall insertarCategoria;
 
     public CategoriaService(JdbcTemplate jdbcTemplate) {
         this.jdbc = jdbcTemplate;
-
-        this.insertarCategoria = new SimpleJdbcCall(jdbcTemplate)
-                .withSchemaName("public")
-                .withProcedureName("insertar_categoria")
-                .withoutProcedureColumnMetaDataAccess()
-                .declareParameters(
-                        new SqlParameter("p_nombre", Types.VARCHAR),
-                        new SqlParameter("p_descripcion", Types.VARCHAR)
-                );
     }
 
     public List<Map<String, Object>> listar() {
@@ -35,11 +25,10 @@ public class CategoriaService {
     }
 
     public void insertar(CategoriaCreateRequest req) {
-        var in = new MapSqlParameterSource()
-                // Si CategoriaCreateRequest es record: usa req.nombre() / req.descripcion()
-                .addValue("p_nombre", req.nombre())
-                .addValue("p_descripcion", req.descripcion());
-
-        insertarCategoria.execute(in);
+        jdbc.update(
+                "CALL public.insertar_categoria(?, ?)",
+                req.nombre(),
+                req.descripcion()
+        );
     }
 }
