@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  micro-productos:
+    build: .
+    container_name: micro-productos
+    ports:
+      - "8090:8080"
+    networks:
+      - micro-net
+
+networks:
+  micro-net:
+    external: true
+    name: microservicio-demo_micro-net
