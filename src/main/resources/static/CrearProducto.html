@@ -622,12 +622,13 @@
         const precio = Number(p.precio || 0);
         const stock = Number(p.stock || 0);
         const rating = Number(p.valoracion || 0);
+        const fecha = p.fecha_ingreso ? new Date(p.fecha_ingreso).toLocaleDateString() : '';
 
         html += `<div class="product-item">
           <div class="product-emoji">${img}</div>
           <div class="product-details">
             <div class="product-name">${p.nombre ?? ""}</div>
-            <div class="product-info">${p.categoria ?? ""} • ${p.marca ?? ""} • Stock: ${stock} • ⭐ ${rating}</div>
+            <div class="product-info">${p.categoria ?? ""} • ${p.marca ?? ""} • Stock: ${stock} • ⭐ ${rating} ${fecha ? '• 📅 ' + fecha : ''}</div>
           </div>
           <div class="product-price">$${precio.toFixed(2)}</div>
           <div class="product-actions">

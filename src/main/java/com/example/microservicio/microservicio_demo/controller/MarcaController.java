@@ -3,7 +3,6 @@ package com.example.microservicio.microservicio_demo.controller;
 import com.example.microservicio.microservicio_demo.dto.MarcaCreateRequest;
 import com.example.microservicio.microservicio_demo.service.MarcaService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
