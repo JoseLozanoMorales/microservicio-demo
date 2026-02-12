@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/productos")
 public class ProductosController {
 
@@ -32,10 +33,25 @@ public class ProductosController {
         return service.listar();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> obtenerPorId(@PathVariable Integer id) {
+        Map<String, Object> producto = service.obtenerPorId(id);
+        if (producto != null) {
+            return ResponseEntity.ok(producto);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     @PostMapping
     public ResponseEntity<?> crear(@RequestBody ProductoCreateRequest req) {
-        service.insertar(req);
-        return ResponseEntity.ok().build();
+        System.out.println("Intento de registro - Payload recibido: " + req);
+        try {
+            service.insertar(req);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Error al crear producto: " + e.getMessage());
+        }
     }
 
     @GetMapping("/{id}/imagenes")
