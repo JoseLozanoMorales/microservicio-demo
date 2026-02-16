@@ -43,7 +43,6 @@ jobs:
           username: azureuser
           key: ${{ secrets.AZURE_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/grupo4
-            docker stop micro-productos || true
-            docker rm micro-productos || true
-            docker run -d -p 8090:8080 --name micro-productos ${{ secrets.DOCKER_USERNAME }}/grupo4
+            cd micro_productos
+            docker compose pull
+            docker compose up -d
