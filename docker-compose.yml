@@ -1,15 +1,31 @@
 version: "3.8"
 
 services:
+  productos-postgres:
+    image: postgres:16
+    container_name: productos-postgres
+    environment:
+      POSTGRES_DB: Productos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123PP45
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
   micro-productos:
     build: .
     container_name: micro-productos
+    depends_on:
+      - productos-postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://productos-postgres:5432/Productos
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 123PP45
     ports:
       - "8090:8080"
-    networks:
-      - micro-net
+    restart: always
 
-networks:
-  micro-net:
-    external: true
-    name: microservicio-demo_micro-net
+volumes:
+  postgres_data:
