@@ -31,10 +31,10 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD_ANDY }}
 
       - name: 5. Construir imagen Docker
-        run: docker build -t ${{ secrets.DOCKER_USERNAME_ANDY }}/anyod26/microservicio_v1 .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME_ANDY }}/microservicio_v1 .
 
       - name: 6. Subir imagen a DockerHub
-        run: docker push ${{ secrets.DOCKER_USERNAME_ANDY }}/anyod26/microservicio_v1
+        run: docker push ${{ secrets.DOCKER_USERNAME_ANDY }}/microservicio_v1
 
       - name: 7. Desplegar en Azure por SSH
         uses: appleboy/ssh-action@v1.0.3
