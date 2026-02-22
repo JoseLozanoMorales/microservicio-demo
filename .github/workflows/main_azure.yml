@@ -44,5 +44,5 @@ jobs:
           key: ${{ secrets.AZURE_SSH_KEY_ANDY }}
           script: |
             cd MicroServicio_Producto
-            docker compose pull
-            docker compose up -d
+            docker-compose pull
+            docker-compose up -d
