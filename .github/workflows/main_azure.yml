@@ -40,7 +40,7 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.AZURE_IP_JEREMY }}
-          username: cdsjeremy
+          username: jeremy28
           key: ${{ secrets.AZURE_SSH_KEY_JEREMY }}
           script: |
             cd Microservicio_Producto
