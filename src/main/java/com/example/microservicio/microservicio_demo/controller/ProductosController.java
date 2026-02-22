@@ -2,6 +2,7 @@ package com.example.microservicio.microservicio_demo.controller;
 
 import com.example.microservicio.microservicio_demo.dto.ProductoCreateRequest;
 import com.example.microservicio.microservicio_demo.service.ProductoService;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,43 @@ public class ProductosController {
         this.jdbc = jdbc;
         this.service = service;
     }
+    // ✅ NUEVO: editar producto (usa el SP public.editar_producto)
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editar(@PathVariable Integer id, @RequestBody ProductoCreateRequest req) {
+        try {
+            service.editar(id, req);
+            return ResponseEntity.ok().build();
+        } catch (DataAccessException e) {
+            String msg = e.getMostSpecificCause() != null ? e.getMostSpecificCause().getMessage() : e.getMessage();
+            if (msg != null && msg.contains("No existe producto")) {
+                return ResponseEntity.notFound().build();
+            }
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Error al editar producto: " + msg);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Error al editar producto: " + e.getMessage());
+        }
+    }
 
+    // ✅ NUEVO: borrar producto (usa el SP public.borrar_producto)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> borrar(@PathVariable Integer id) {
+        try {
+            service.borrar(id);
+            return ResponseEntity.ok().build();
+        } catch (DataAccessException e) {
+            String msg = e.getMostSpecificCause() != null ? e.getMostSpecificCause().getMessage() : e.getMessage();
+            if (msg != null && msg.contains("No existe producto")) {
+                return ResponseEntity.notFound().build();
+            }
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Error al borrar producto: " + msg);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Error al borrar producto: " + e.getMessage());
+        }
+    }
     @GetMapping
     public List<Map<String, Object>> listar() {
         return service.listar();

@@ -34,7 +34,31 @@ public class ProductoService {
             r.idCategoria()
     );
 }
+    // ✅ NUEVO: editar producto usando tu SP
+    public void editar(Integer idProducto, ProductoCreateRequest r) {
+        String sql = "CALL public.editar_producto(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
+        jdbc.update(sql,
+                idProducto,
+                r.nombre(),
+                r.descripcion(),
+                r.precio(),
+                r.stock(),
+                r.descuento(),
+                r.valoracion(),
+                r.fechaIngreso() != null ? java.sql.Date.valueOf(r.fechaIngreso()) : null,
+                r.estado(),
+                r.idMarca(),
+                r.idCategoria()
+        );
+    }
+
+    // ✅ NUEVO: borrar producto usando tu SP
+    public void borrar(Integer idProducto) {
+        String sql = "CALL public.borrar_producto(?)";
+        jdbc.update(sql, idProducto);
+        // Nota: si producto_imagenes tiene FK ON DELETE CASCADE, se limpian solas.
+    }
 
     public void agregarImagen(Integer idProducto, ProductoImagenCreateRequest req) {
         jdbc.update("CALL sp_agregar_imagen(?, ?, ?, ?)",

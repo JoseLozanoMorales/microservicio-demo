@@ -100,8 +100,8 @@
         .product-info { font-size: 0.875rem; color: #6b7280; }
         .product-price { font-size: 1.25rem; font-weight: bold; color: #9333ea; }
 
-        .product-actions { display: flex; gap: 0.5rem; opacity: 0.5; }
-        .btn-icon { background: none; border: none; padding: 0.5rem; cursor: not-allowed; border-radius: 0.25rem; transition: all 0.3s; }
+        .product-actions { display: flex; gap: 0.5rem; opacity: 1; }
+        .btn-icon { background:none; border:none; padding:0.5rem; cursor:pointer; border-radius:0.25rem; transition:all 0.3s; }
         .btn-icon:hover { background: #e5e7eb; }
         .btn-edit { color: #2563eb; }
         .btn-delete { color: #ef4444; }
@@ -261,7 +261,7 @@
         <div class="card">
             <h2 class="card-title">
                 <span>➕</span>
-                <span id="formTitle">Add new product</span>
+                <span id="formTitle">Agregar nuevo producto</span>
             </h2>
 
             <div id="alertContainer"></div>
@@ -298,7 +298,7 @@
 
                 <div class="form-group">
                     <label>Calificación (1-5)</label>
-                    <input type="number" id="productRating" step="0.1" min="1" max="5" placeholder="4.5" required>
+                    <input type="number" id="productRating" step="1" min="1" max="5" placeholder="5" required>
                 </div>
 
                 <div class="form-group">
@@ -442,13 +442,24 @@
         headers: { "Content-Type": "application/json" },
         ...options,
       });
+
+      // Si no es OK, devolvemos error con cuerpo (si existe)
       if (!res.ok) {
         const text = await res.text().catch(() => "");
-        throw new Error(`HTTP ${res.status} - ${text || res.statusText}`);
+        const err = new Error(`HTTP ${res.status} - ${text || res.statusText}`);
+        err.status = res.status;
+        err.body = text;
+        throw err;
       }
+
+      // 204 No Content o body vacío
+      if (res.status === 204) return null;
+
       const ct = res.headers.get("content-type") || "";
       if (ct.includes("application/json")) return res.json();
-      return res.text();
+
+      const text = await res.text().catch(() => "");
+      return text || null;
     }
 
     function showAlert(message, type) {
@@ -618,23 +629,26 @@
 
       let html = "";
       for (const p of products) {
-        const img = (p.imagen && String(p.imagen).trim()) ? `<img src="${p.imagen}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;">` : "📦";
+        const img = (p.imagen && String(p.imagen).trim())
+          ? `<img src="${p.imagen}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;">`
+          : "📦";
+
         const precio = Number(p.precio || 0);
         const stock = Number(p.stock || 0);
         const rating = Number(p.valoracion || 0);
-        const fecha = p.fecha_ingreso ? new Date(p.fecha_ingreso).toLocaleDateString() : '';
+        const fecha = p.fecha_ingreso ? new Date(p.fecha_ingreso).toLocaleDateString() : "";
 
         html += `<div class="product-item">
           <div class="product-emoji">${img}</div>
           <div class="product-details">
             <div class="product-name">${p.nombre ?? ""}</div>
-            <div class="product-info">${p.categoria ?? ""} • ${p.marca ?? ""} • Stock: ${stock} • ⭐ ${rating} ${fecha ? '• 📅 ' + fecha : ''}</div>
+            <div class="product-info">${p.categoria ?? ""} • ${p.marca ?? ""} • Stock: ${stock} • ⭐ ${rating} ${fecha ? "• 📅 " + fecha : ""}</div>
           </div>
           <div class="product-price">$${precio.toFixed(2)}</div>
           <div class="product-actions">
-            <button class="btn-icon" style="cursor:pointer; opacity:1;" onclick="openImgModal(${p.id_producto})" title="Gestionar Imágenes">📷</button>
-            <button class="btn-icon btn-edit" title="Aún no implementado">✏️</button>
-            <button class="btn-icon btn-delete" title="Aún no implementado">🗑️</button>
+            <button class="btn-icon" onclick="openImgModal(${p.id_producto})" title="Gestionar Imágenes">📷</button>
+            <button class="btn-icon btn-edit" onclick="startEdit(${p.id_producto})" title="Editar">✏️</button>
+            <button class="btn-icon btn-delete" onclick="deleteProduct(${p.id_producto})" title="Eliminar">🗑️</button>
           </div>
         </div>`;
       }
@@ -659,7 +673,104 @@
       document.getElementById("totalStock").textContent = totalStock;
       document.getElementById("totalValue").textContent = "$" + totalValue.toFixed(2);
     }
+    function getPayloadFromForm() {
+      const nombre = document.getElementById("productName").value.trim();
+      const descripcion = document.getElementById("productDesc").value.trim();
+      const precio = Number(document.getElementById("productPrice").value);
+      const idCategoria = Number(document.getElementById("productCategory").value);
+      const idMarca = Number(document.getElementById("productBrand").value);
+      const ratingFloat = Number(document.getElementById("productRating").value);
+      const stock = Number(document.getElementById("productStock").value);
 
+      if (!nombre) throw new Error("Nombre requerido");
+      if (!Number.isFinite(precio) || precio < 0) throw new Error("Precio inválido");
+      if (!Number.isFinite(stock) || stock < 0) throw new Error("Stock inválido");
+      if (!idCategoria) throw new Error("Selecciona una categoría");
+      if (!idMarca) throw new Error("Selecciona una marca");
+
+      return {
+        nombre: nombre,
+        descripcion: descripcion || "Sin descripción",
+        precio: precio,
+        stock: stock,
+        descuento: 0,
+        valoracion: clampInt(ratingFloat, 1, 5), // tu BD usa integer
+        fechaIngreso: todayISO(),                // si quieres mantener la fecha original, ver nota abajo
+        estado: 1,
+        idMarca: idMarca,
+        idCategoria: idCategoria
+      };
+    }
+
+    function fillFormFromProduct(p) {
+      document.getElementById("productName").value = p.nombre ?? "";
+      document.getElementById("productDesc").value = p.descripcion ?? "";
+      document.getElementById("productPrice").value = Number(p.precio ?? 0);
+      document.getElementById("productStock").value = Number(p.stock ?? 0);
+      document.getElementById("productRating").value = Number(p.valoracion ?? 1);
+
+      // OJO: tu lista trae nombres ("marca", "categoria") pero el PUT necesita idMarca/idCategoria.
+      // Por eso hacemos GET /api/productos/{id} (abajo) para tener ids o buscamos por nombre.
+    }
+
+    async function startEdit(productId) {
+      try {
+        // Traemos el producto por id para tener lo más completo posible
+        const p = await apiFetch(`${API.productos}/${productId}`, { method: "GET" });
+
+        editingId = productId;
+
+        // Llenar campos directos
+        fillFormFromProduct(p);
+
+        // Intento de setear selects:
+        // Si el backend devuelve id_marca/id_categoria => perfecto.
+        // Si solo devuelve "marca"/"categoria" (nombre), buscamos en arrays.
+        const idCat =
+          Number(p.id_categoria ?? p.idCategoria ?? 0) ||
+          (categories.find(c => c.nombre === p.categoria)?.id_categoria ?? 0);
+
+        const idMar =
+          Number(p.id_marca ?? p.idMarca ?? 0) ||
+          (brands.find(b => b.nombre === p.marca)?.id_marca ?? 0);
+
+        document.getElementById("productCategory").value = idCat ? String(idCat) : "";
+        document.getElementById("productBrand").value = idMar ? String(idMar) : "";
+
+        document.getElementById("formTitle").textContent = `Editar producto #${productId}`;
+        document.getElementById("submitBtn").textContent = "Guardar cambios";
+
+        showAlert("Modo edición activado. Modifica y guarda.", "info");
+
+        // Opcional: subir al top para ver el formulario
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (e) {
+        console.error(e);
+        showAlert("No se pudo cargar el producto para editar: " + e.message, "error");
+      }
+    }
+
+    async function deleteProduct(productId) {
+      if (!confirm(`¿Eliminar producto #${productId}? Esta acción no se puede deshacer.`)) return;
+
+      try {
+        await apiFetch(`${API.productos}/${productId}`, { method: "DELETE" });
+
+        // Si estabas editando ese producto, resetea el form
+        if (editingId === productId) resetForm();
+
+        await loadProductos();
+        renderProducts();
+        showAlert("Producto eliminado correctamente", "success");
+      } catch (e) {
+        console.error(e);
+        if (e.status === 404) {
+          showAlert("No existe el producto (ya fue eliminado).", "error");
+        } else {
+          showAlert("Error eliminando producto: " + e.message, "error");
+        }
+      }
+    }
     function resetForm() {
       document.getElementById("productForm").reset();
       editingId = null;
@@ -671,47 +782,38 @@
     document.getElementById("productForm").addEventListener("submit", async function(e) {
       e.preventDefault();
 
-      if (editingId) {
-        alert("Editar aún no está implementado.");
+      let payload;
+      try {
+        payload = getPayloadFromForm();
+      } catch (err) {
+        alert(err.message);
         return;
       }
 
-      const nombre = document.getElementById("productName").value.trim();
-      const descripcion = document.getElementById("productDesc").value.trim();
-      const precio = Number(document.getElementById("productPrice").value);
-      const idCategoria = Number(document.getElementById("productCategory").value);
-      const idMarca = Number(document.getElementById("productBrand").value);
-      const ratingFloat = Number(document.getElementById("productRating").value);
-      const stock = Number(document.getElementById("productStock").value);
-
-      if (!nombre) { alert("Nombre requerido"); return; }
-      if (!Number.isFinite(precio) || precio < 0) { alert("Precio inválido"); return; }
-      if (!Number.isFinite(stock) || stock < 0) { alert("Stock inválido"); return; }
-      if (!idCategoria) { alert("Selecciona una categoría"); return; }
-      if (!idMarca) { alert("Selecciona una marca"); return; }
-
-      const payload = {
-        nombre: nombre,
-        descripcion: descripcion || "Sin descripción",
-        precio: precio,
-        stock: stock,
-        descuento: 0,
-        valoracion: clampInt(ratingFloat, 1, 5), // tu BD usa integer
-        fechaIngreso: todayISO(),                // tu DTO usa LocalDate
-        estado: 1,
-        idMarca: idMarca,
-        idCategoria: idCategoria
-      };
-
       try {
-        await apiFetch(API.productos, { method: "POST", body: JSON.stringify(payload) });
-        showAlert("Producto agregado exitosamente", "success");
+        if (!editingId) {
+          // CREAR
+          await apiFetch(API.productos, { method: "POST", body: JSON.stringify(payload) });
+          showAlert("Producto agregado exitosamente", "success");
+        } else {
+          // EDITAR
+          await apiFetch(`${API.productos}/${editingId}`, { method: "PUT", body: JSON.stringify(payload) });
+          showAlert("Producto actualizado exitosamente", "success");
+        }
+
         resetForm();
         await loadProductos();
         renderProducts();
       } catch (err) {
         console.error(err);
-        showAlert("Error agregando producto: " + err.message, "error");
+
+        if (err.status === 404) {
+          showAlert("No existe el producto (quizá fue eliminado).", "error");
+          resetForm();
+          return;
+        }
+
+        showAlert((editingId ? "Error editando producto: " : "Error agregando producto: ") + err.message, "error");
       }
     });
 
