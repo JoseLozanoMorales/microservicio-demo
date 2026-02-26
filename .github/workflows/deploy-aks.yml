@@ -32,3 +32,6 @@ jobs:
 
       - name: Verify cluster connection
         run: kubectl get nodes
+
+      - name: Deploy Kubernetes manifests
+        run: kubectl apply -f k8s/
