@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: micro-productos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: micro-productos
+  template:
+    metadata:
+      labels:
+        app: micro-productos
+    spec:
+      containers:
+        - name: micro-productos
+          image: grupo4jose.azurecr.io/micro-productos:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://134.33.29.232:5437/Productos"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "123PP45"
