@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jeremy-microservicio
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: jeremy-microservicio
+  template:
+    metadata:
+      labels:
+        app: jeremy-microservicio
+    spec:
+      containers:
+        - name: jeremy-microservicio
+          image: jeremyacr.azurecr.io/jeremy-ms:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8082
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql:3306/mydb?useSSL=false"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "root"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "123456"
