@@ -39,9 +39,9 @@ jobs:
       - name: Azure Login (OIDC)
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID_JOSE }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID_JOSE }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID_JOSE }}
 
       - name: Docker login to ACR
         run: |
@@ -57,8 +57,8 @@ jobs:
       - name: Set AKS context
         uses: azure/aks-set-context@v3
         with:
-          resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          cluster-name: ${{ secrets.AZURE_CLUSTER_NAME }}
+          resource-group: ${{ secrets.AZURE_RESOURCE_GROUP_JOSE }}
+          cluster-name: ${{ secrets.AZURE_CLUSTER_NAME_JOSE }}
 
       - name: Deploy
         run: |
