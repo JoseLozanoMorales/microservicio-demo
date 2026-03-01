@@ -20,8 +20,8 @@ spec:
             - containerPort: 8082
           env:
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:mysql://mysql:3306/mydb?useSSL=false"
+              value: "jdbc:postgresql://postgres:5432/mydb"
             - name: SPRING_DATASOURCE_USERNAME
-              value: "root"
+              value: "postgres"
             - name: SPRING_DATASOURCE_PASSWORD
               value: "123456"
