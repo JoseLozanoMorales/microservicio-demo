@@ -48,9 +48,10 @@ jobs:
         uses: azure/k8s-deploy@v1
         with:
           manifests: |
-            k8s/mysql-pvc.yaml
-            k8s/mysql-deploy.yaml
-            k8s/microservicio-deployment.yaml
-            k8s/service.yaml
+              k8s/postgres-pvc.yaml
+              k8s/postgres-deploy.yaml
+              k8s/postgres-service.yaml
+              k8s/microservicio-deployment.yaml
+              k8s/service.yaml
           images: |
             ${{ secrets.ACR_LOGIN_SERVER_JEREMY }}/jeremy-ms:latest
