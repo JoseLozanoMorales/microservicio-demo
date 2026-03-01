@@ -1,27 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jeremy-microservicio
+  name: microservicio-demo
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: jeremy-microservicio
+      app: microservicio-demo
   template:
     metadata:
       labels:
-        app: jeremy-microservicio
+        app: microservicio-demo
     spec:
       containers:
-        - name: jeremy-microservicio
-          image: jeremyacr.azurecr.io/jeremy-ms:latest
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 8082
-          env:
-            - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://postgres:5432/mydb"
-            - name: SPRING_DATASOURCE_USERNAME
-              value: "postgres"
-            - name: SPRING_DATASOURCE_PASSWORD
-              value: "123456"
+      - name: microservicio-demo
+        image: jeremyacr.azurecr.io/jeremy-ms:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:postgresql://postgres:5432/mydb"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "postgres"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "123456"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: microservicio-demo-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: microservicio-demo
