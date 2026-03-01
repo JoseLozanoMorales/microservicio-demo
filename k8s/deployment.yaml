@@ -17,10 +17,19 @@ spec:
           image: grupo4jose.azurecr.io/micro-productos:latest
           ports:
             - containerPort: 8080
-          env:
-            - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://134.33.29.232:5437/Productos"
-            - name: SPRING_DATASOURCE_USERNAME
-              value: "postgres"
-            - name: SPRING_DATASOURCE_PASSWORD
-              value: "123PP45"
+    env:
+      - name: SPRING_DATASOURCE_URL
+        valueFrom:
+          secretKeyRef:
+            name: micro-productos-db
+            key: SPRING_DATASOURCE_URL
+      - name: SPRING_DATASOURCE_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: micro-productos-db
+            key: SPRING_DATASOURCE_USERNAME
+      - name: SPRING_DATASOURCE_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: micro-productos-db
+            key: SPRING_DATASOURCE_PASSWORD
