@@ -2,7 +2,7 @@ name: Deploy Microservice to Azure AKS (Jeremy)
 
 on:
   push:
-    branches: [ "Kuberntes-Jeremy" ]
+    branches: [ "Kuberntes-jeremy" ]
 
 jobs:
   build-and-deploy:
