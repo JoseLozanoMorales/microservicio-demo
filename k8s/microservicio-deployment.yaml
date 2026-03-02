@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: microservicio-demo
-          image: andyacr.azurecr.io/microservicio-demo:${{ github.sha }}
+          image: andyacr.azurecr.io/microservicio-demo:latest
           ports:
             - containerPort: 8080
           env:
