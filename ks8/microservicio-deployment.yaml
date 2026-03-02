@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: microservicio-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microservicio-demo
+  template:
+    metadata:
+      labels:
+        app: microservicio-demo
+    spec:
+      containers:
+        - name: microservicio-demo
+          image: andyacr.azurecr.io/microservicio-demo:${{ github.sha }}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres-service:5432/mydb
+            - name: SPRING_DATASOURCE_USERNAME
+              value: postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: microservicio-demo-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: microservicio-demo
+  ports:
+    - port: 80
+      targetPort: 8080

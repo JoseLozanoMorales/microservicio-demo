@@ -1,0 +1,50 @@
+name: Deploy to AKS
+
+on:
+  push:
+    branches:
+      - Kubernetes-Andy2.0
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS_ANDY }}
+
+      - name: Login to ACR
+        run: |
+          echo ${{ secrets.ACR_PASSWORD_ANDY }} | docker login ${{ secrets.ACR_LOGIN_SERVER_ANDY }} \
+          --username ${{ secrets.ACR_USERNAME_ANDY }} \
+          --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.ACR_LOGIN_SERVER_ANDY }}/microservicio-demo:${{ github.sha }} .
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.ACR_LOGIN_SERVER_ANDY }}/microservicio-demo:${{ github.sha }}
+
+      - name: Get AKS credentials
+        run: |
+          az aks get-credentials --resource-group cdsandy_group --name andy-aks-cluster --overwrite-existing
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f k8s/
