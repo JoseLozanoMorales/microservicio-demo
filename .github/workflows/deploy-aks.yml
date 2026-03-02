@@ -3,7 +3,7 @@ name: Deploy to AKS
 on:
   push:
     branches:
-      - Kubernetes-Andy2.0
+      - Kuberntes-Andy2.0
 
 jobs:
   build-and-deploy:
