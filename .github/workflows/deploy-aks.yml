@@ -35,11 +35,11 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.ACR_LOGIN_SERVER_ANDY }}/microservicio-demo:${{ github.sha }} .
+          docker build -t ${{ secrets.ACR_LOGIN_SERVER_ANDY }}/microservicio-demo:latest .
 
       - name: Push Docker image
         run: |
-          docker push ${{ secrets.ACR_LOGIN_SERVER_ANDY }}/microservicio-demo:${{ github.sha }}
+          docker push ${{ secrets.ACR_LOGIN_SERVER_ANDY }}/microservicio-demo:latest
 
       - name: Get AKS credentials
         run: |
