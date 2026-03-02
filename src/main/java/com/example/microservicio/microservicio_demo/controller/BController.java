@@ -1,9 +1,10 @@
 package com.example.microservicio.microservicio_demo.controller;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/b")
+@RequestMapping("/api/b/productos")
 public class BController {
 
     private final ProductosClient productosClient;
@@ -12,18 +13,32 @@ public class BController {
         this.productosClient = productosClient;
     }
 
-    @GetMapping("/productos")
+    @GetMapping
     public ResponseEntity<String> listar() {
-        return ResponseEntity.ok(productosClient.getProductos());
+        return ResponseEntity.ok(productosClient.listar());
     }
 
-    @PutMapping("/productos/{id}")
+    @GetMapping("/{id}")
+    public ResponseEntity<String> obtener(@PathVariable Integer id) {
+        return ResponseEntity.ok(productosClient.obtenerPorId(id));
+    }
+
+    @PostMapping
+    public ResponseEntity<String> crear(@RequestBody Object body) {
+        // A devuelve vacío en tu controller, pero igual devolvemos algo
+        String r = productosClient.crear(body);
+        return ResponseEntity.ok(r == null ? "OK" : r);
+    }
+
+    @PutMapping("/{id}")
     public ResponseEntity<String> editar(@PathVariable Integer id, @RequestBody Object body) {
-        return ResponseEntity.ok(productosClient.editarProducto(id, body));
+        String r = productosClient.editar(id, body);
+        return ResponseEntity.ok(r == null ? "OK" : r);
     }
 
-    @DeleteMapping("/productos/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> borrar(@PathVariable Integer id) {
-        return ResponseEntity.ok(productosClient.borrarProducto(id));
+        String r = productosClient.borrar(id);
+        return ResponseEntity.ok(r == null ? "OK" : r);
     }
 }
