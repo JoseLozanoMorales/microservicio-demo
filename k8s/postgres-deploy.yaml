@@ -22,6 +22,8 @@ spec:
               value: postgres
             - name: POSTGRES_DB
               value: mydb
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: postgres-storage
