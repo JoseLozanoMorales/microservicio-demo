@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: productos-postgres-secret
+type: Opaque
+stringData:
+  POSTGRES_DB: Productos
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: 123PP45
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productos-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: productos-postgres
+  template:
+    metadata:
+      labels:
+        app: productos-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: productos-postgres-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: productos-postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: productos-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
