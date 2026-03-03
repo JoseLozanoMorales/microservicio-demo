@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: micro-productos-svc
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: micro-productos
   ports:

@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: micro-b-svc
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   selector:
     app: micro-b
   ports:
