@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: micro-b
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: micro-b
+  template:
+    metadata:
+      labels:
+        app: micro-b
+    spec:
+      containers:
+        - name: micro-b
+          image: grupo4jose.azurecr.io/micro-b:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PRODUCTOS_BASE_URL
+              value: "http://micro-productos-svc"
