@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Micro-B | Productos</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        header { display:flex; gap:12px; align-items:center; margin-bottom: 16px; }
+        input { padding:10px; width: 320px; }
+        button { padding:10px 14px; cursor:pointer; }
+        .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+        .card { border:1px solid #ddd; border-radius:12px; padding:12px; }
+        .name { font-weight:700; margin-bottom:6px; }
+        .meta { color:#555; font-size: 14px; }
+        .price { margin-top:10px; font-weight:700; }
+        .error { color: #b00020; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+<header>
+    <h2 style="margin:0">Microservicio B</h2>
+    <span class="meta">Leyendo productos desde A</span>
+</header>
+
+<div style="display:flex; gap:10px; margin-bottom: 14px;">
+    <input id="q" placeholder="Buscar por nombre/marca/categoría..." />
+    <button id="btnReload">Recargar</button>
+</div>
+
+<div id="status" class="meta"></div>
+<div id="error" class="error"></div>
+<div id="grid" class="grid"></div>
+
+<script>
+    const API = "/api/b/productos"; // consumimos B, no A directo
+
+    const $grid = document.getElementById("grid");
+    const $status = document.getElementById("status");
+    const $error = document.getElementById("error");
+    const $q = document.getElementById("q");
+
+    let all = [];
+
+    function render(list) {
+      $grid.innerHTML = "";
+      for (const p of list) {
+        const el = document.createElement("div");
+        el.className = "card";
+
+        const name = p.nombre ?? "(sin nombre)";
+        const marca = p.marca ?? "-";
+        const categoria = p.categoria ?? "-";
+        const precio = (p.precio != null) ? `$${p.precio}` : "-";
+        const stock = (p.stock != null) ? `${p.stock}` : "-";
+
+        el.innerHTML = `
+          <div class="name">${escapeHtml(name)}</div>
+          <div class="meta">Marca: ${escapeHtml(marca)}</div>
+          <div class="meta">Categoría: ${escapeHtml(categoria)}</div>
+          <div class="meta">Stock: ${escapeHtml(stock)}</div>
+          <div class="price">${escapeHtml(precio)}</div>
+        `;
+        $grid.appendChild(el);
+      }
+      $status.textContent = `Mostrando ${list.length} producto(s).`;
+    }
+
+    function escapeHtml(v) {
+      return String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+
+    function filterNow() {
+      const term = $q.value.trim().toLowerCase();
+      if (!term) return render(all);
+      const filtered = all.filter(p => {
+        const s = `${p.nombre ?? ""} ${p.marca ?? ""} ${p.categoria ?? ""}`.toLowerCase();
+        return s.includes(term);
+      });
+      render(filtered);
+    }
+
+    async function load() {
+      $error.textContent = "";
+      $status.textContent = "Cargando...";
+      try {
+        const res = await fetch(API);
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`HTTP ${res.status}\n${text}`);
+        }
+        const data = await res.json();
+        all = Array.isArray(data) ? data : [];
+        render(all);
+      } catch (e) {
+        $status.textContent = "";
+        $error.textContent = `Error cargando productos desde ${API}\n\n${e.message}`;
+      }
+    }
+
+    document.getElementById("btnReload").addEventListener("click", load);
+    $q.addEventListener("input", filterNow);
+
+    load();
+</script>
+</body>
+</html>
