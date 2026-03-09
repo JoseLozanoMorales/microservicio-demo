@@ -74,4 +74,13 @@ public class ProductoService {
            jdbc.update(sql, p.idProducto(), p.cantidad());
         }
     }
+
+    public void reducirStockMultiple(List<StockUpdateRequest> productos) {
+
+    String sql = "CALL sp_reducir_stock(?, ?)";
+
+    for (StockUpdateRequest p : productos) {
+        jdbc.update(sql, p.idProducto(), p.cantidad());
+    }
+}
 }

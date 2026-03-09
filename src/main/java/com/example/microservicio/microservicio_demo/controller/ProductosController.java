@@ -129,4 +129,12 @@ public class ProductosController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/reducir-stock")
+    public ResponseEntity<?> reducirStock(@RequestBody List<StockUpdateRequest> productos) {
+
+        service.reducirStockMultiple(productos);
+
+        return ResponseEntity.ok().build();
+    }
 }
