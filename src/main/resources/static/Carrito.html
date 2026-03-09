@@ -1,0 +1,118 @@
+<!-- CARRITO MODAL - Integración con Facturación -->
+<div id="carritoModal" style="display:none; position:fixed; top:0; right:0; width:380px; height:100vh; background:#1a1a2e; color:#fff; z-index:9999; padding:1.5rem; overflow-y:auto; box-shadow:-4px 0 20px rgba(0,0,0,0.5);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+        <h3 style="margin:0; color:#00e5ff;">🛒 Carrito</h3>
+        <button onclick="cerrarCarrito()" style="background:none; border:none; color:#fff; font-size:1.5rem; cursor:pointer;">✕</button>
+    </div>
+
+    <div id="carritoItems"></div>
+
+    <div style="border-top:1px solid #2a2a3a; margin-top:1rem; padding-top:1rem;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+            <span style="color:#aaa;">Subtotal:</span>
+            <span id="carritoSubtotal">$0.00</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+            <span style="color:#aaa;">IVA (15%):</span>
+            <span id="carritoIva" style="color:#00e676;">$0.00</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:1.2rem; font-weight:700; margin-bottom:1.5rem;">
+            <span>TOTAL:</span>
+            <span id="carritoTotal" style="color:#00e676;">$0.00</span>
+        </div>
+        <button onclick="irAFacturacion()" style="width:100%; padding:1rem; background:linear-gradient(135deg,#7b2fff,#00e5ff); border:none; border-radius:10px; color:#fff; font-size:1rem; font-weight:700; cursor:pointer;">
+            💳 Proceder al Pago
+        </button>
+    </div>
+</div>
+
+<!-- OVERLAY -->
+<div id="carritoOverlay" onclick="cerrarCarrito()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9998;"></div>
+
+<script>
+    let carrito = [];
+
+    // Interceptar todos los botones "+" de los productos
+    document.addEventListener('DOMContentLoaded', () => {
+      // Busca el botón de carrito existente y lo conecta
+      const btnCarrito = document.querySelector('button[class*="carrito"], .carrito-btn, #btnCarrito');
+      if (btnCarrito) btnCarrito.onclick = abrirCarrito;
+    });
+
+    function agregarAlCarrito(id, nombre, precio, imagen) {
+      const existe = carrito.find(p => p.id === id);
+      if (existe) {
+        existe.cantidad++;
+      } else {
+        carrito.push({ id, nombre, precio, imagen, cantidad: 1 });
+      }
+      actualizarCarrito();
+      abrirCarrito();
+    }
+
+    function actualizarCarrito() {
+      const container = document.getElementById('carritoItems');
+      if (carrito.length === 0) {
+        container.innerHTML = '<p style="color:#aaa; text-align:center;">El carrito está vacío</p>';
+      } else {
+        container.innerHTML = carrito.map(p => `
+          <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem; background:#2a2a3a; padding:0.75rem; border-radius:8px;">
+            <img src="http://40.82.168.11:8090${p.imagen}" style="width:50px; height:50px; object-fit:contain; background:#fff; border-radius:6px;" onerror="this.src='https://via.placeholder.com/50'"/>
+            <div style="flex:1;">
+              <div style="font-size:0.8rem; font-weight:600;">${p.nombre.substring(0,30)}...</div>
+              <div style="color:#00e676; font-weight:700;">$${p.precio}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <button onclick="cambiarCantidad(${p.id}, -1)" style="background:#3a3a4a; border:none; color:#fff; width:24px; height:24px; border-radius:50%; cursor:pointer;">-</button>
+              <span>${p.cantidad}</span>
+              <button onclick="cambiarCantidad(${p.id}, 1)" style="background:#3a3a4a; border:none; color:#fff; width:24px; height:24px; border-radius:50%; cursor:pointer;">+</button>
+              <button onclick="eliminarDelCarrito(${p.id})" style="background:none; border:none; color:#ff4444; cursor:pointer; margin-left:0.5rem;">🗑</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      const subtotal = carrito.reduce((sum, p) => sum + (p.precio * p.cantidad), 0);
+      const iva = subtotal * 0.15;
+      const total = subtotal + iva;
+
+      document.getElementById('carritoSubtotal').textContent = '$' + subtotal.toFixed(2);
+      document.getElementById('carritoIva').textContent = '$' + iva.toFixed(2);
+      document.getElementById('carritoTotal').textContent = '$' + total.toFixed(2);
+    }
+
+    function cambiarCantidad(id, delta) {
+      const item = carrito.find(p => p.id === id);
+      if (item) {
+        item.cantidad += delta;
+        if (item.cantidad <= 0) carrito = carrito.filter(p => p.id !== id);
+      }
+      actualizarCarrito();
+    }
+
+    function eliminarDelCarrito(id) {
+      carrito = carrito.filter(p => p.id !== id);
+      actualizarCarrito();
+    }
+
+    function abrirCarrito() {
+      document.getElementById('carritoModal').style.display = 'block';
+      document.getElementById('carritoOverlay').style.display = 'block';
+      actualizarCarrito();
+    }
+
+    function cerrarCarrito() {
+      document.getElementById('carritoModal').style.display = 'none';
+      document.getElementById('carritoOverlay').style.display = 'none';
+    }
+
+    function irAFacturacion() {
+      if (carrito.length === 0) {
+        alert('El carrito está vacío');
+        return;
+      }
+      // Envía los productos a tu sistema de facturación
+      const params = encodeURIComponent(JSON.stringify(carrito));
+      window.location.href = http://74.249.40.210:8080?carrito=${params};
+    }
+</script>
