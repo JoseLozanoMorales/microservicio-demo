@@ -51,15 +51,22 @@ public class ProductosController {
     }
 
     @GetMapping("/{id}/imagenes")
-    public List<Map<String, Object>> listarImagenes(@PathVariable Integer id) {
-        // Seleccionamos ID y metadatos (sin el BLOB pesado)
+    public List<Map<String, Object>> listarImagenes(
+            @PathVariable Integer id,
+            @RequestParam(required = false) Boolean portada) {
+
         String sql = "SELECT id_imagen, id_producto, portada, galeria FROM producto_imagenes WHERE id_producto = ?";
+
+        if (portada != null && portada) {
+            sql += " AND portada = true";
+        }
+
         List<Map<String, Object>> imagenes = jdbc.queryForList(sql, id);
-        
-        // Construimos la URL de renderizado para que el frontend pueda mostrarla
+
         imagenes.forEach(img -> {
             img.put("url", "/api/productos/imagenes/render/" + img.get("id_imagen"));
         });
+
         return imagenes;
     }
 
