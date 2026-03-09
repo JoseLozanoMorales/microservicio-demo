@@ -1,12 +1,14 @@
 package com.example.microservicio.microservicio_demo.service;
 
-import com.example.microservicio.microservicio_demo.dto.ProductoCreateRequest;
-import com.example.microservicio.microservicio_demo.dto.ProductoImagenCreateRequest;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
+import com.example.microservicio.microservicio_demo.dto.ProductoCreateRequest;
+import com.example.microservicio.microservicio_demo.dto.ProductoImagenCreateRequest;
+import com.example.microservicio.microservicio_demo.dto.StockUpdateRequest;
 
 @Service
 public class ProductoService {
@@ -61,5 +63,15 @@ public class ProductoService {
 
     public byte[] obtenerImagenContenido(Integer idImagen) {
         return jdbc.queryForObject("SELECT fn_obtener_imagen_blob(?)", byte[].class, idImagen);
+    }
+
+    //nuevo
+    public void aumentarStockMultiple(List<StockUpdateRequest> productos) {
+
+        String sql = "CALL sp_aumentar_stock(?, ?)";
+
+        for (StockUpdateRequest p : productos) {
+           jdbc.update(sql, p.idProducto(), p.cantidad());
+        }
     }
 }
