@@ -555,7 +555,7 @@
                 name: product.name,
                 price: product.price,
                 category: product.category,
-                image: categoryEmoji(product.category),
+                image: product.imageUrl,
                 rating: product.rating,
                 stock: product.stock,
                 quantity: 1
@@ -641,7 +641,7 @@
             cartHTML += '<span class="cart-total-label">Total:</span>';
             cartHTML += '<span class="cart-total-amount">$' + total.toFixed(2) + '</span>';
             cartHTML += '</div>';
-            cartHTML += '<button class="checkout-btn">Proceder al Pago</button>';
+            cartHTML += '<button class="checkout-btn" onclick="irAFacturacion()">Proceder al Pago</button>';
             cartHTML += '</div>';
 
             cartContent.innerHTML = cartHTML;
@@ -655,7 +655,17 @@
         overlay.classList.toggle('active');
         sidebar.classList.toggle('active');
     }
+    function irAFacturacion() {
 
+        if (cart.length === 0) {
+            alert("El carrito está vacío");
+            return;
+        }
+
+        const params = encodeURIComponent(JSON.stringify(cart));
+
+        window.location.href = `http://74.249.40.210:8080?carrito=${params}`;
+    }
     // Cargar desde tu microservicio al iniciar
     document.addEventListener('DOMContentLoaded', function () {
         updateCart();
