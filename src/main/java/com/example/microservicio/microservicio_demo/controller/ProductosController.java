@@ -50,24 +50,23 @@ public class ProductosController {
         }
     }
 
-    @GetMapping("/{id}/imagenes")
-    public List<Map<String, Object>> listarImagenes(
-            @PathVariable Integer id,
-            @RequestParam(required = false) Boolean portada) {
+    @GetMapping("/{id}/portada/render")
+    public ResponseEntity<byte[]> renderPortada(@PathVariable Integer id) {
+        try {
 
-        String sql = "SELECT id_imagen, id_producto, portada, galeria FROM producto_imagenes WHERE id_producto = ?";
+            byte[] imagen = jdbc.queryForObject(
+                    "SELECT fn_obtener_portada_producto(?)",
+                    byte[].class,
+                    id
+            );
 
-        if (portada != null && portada) {
-            sql += " AND portada = true";
+            return ResponseEntity.ok()
+                    .contentType(org.springframework.http.MediaType.IMAGE_JPEG)
+                    .body(imagen);
+
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
         }
-
-        List<Map<String, Object>> imagenes = jdbc.queryForList(sql, id);
-
-        imagenes.forEach(img -> {
-            img.put("url", "/api/productos/imagenes/render/" + img.get("id_imagen"));
-        });
-
-        return imagenes;
     }
 
     @DeleteMapping("/imagenes/{idImagen}")
