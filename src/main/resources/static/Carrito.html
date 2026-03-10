@@ -57,7 +57,7 @@
     } else {
       container.innerHTML = carrito.map(p => `
         <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem; background:#2a2a3a; padding:0.75rem; border-radius:8px;">
-          <img src="http://40.82.168.11:8090${p.imagen}" style="width:50px; height:50px; object-fit:contain; background:#fff; border-radius:6px;" onerror="this.src='https://via.placeholder.com/50'"/>
+          <img src="${p.imagen}" style="width:50px; height:50px; object-fit:contain; background:#fff; border-radius:6px;" onerror="this.src='https://via.placeholder.com/50'"/>
           <div style="flex:1;">
             <div style="font-size:0.8rem; font-weight:600;">${p.nombre.substring(0,30)}...</div>
             <div style="color:#00e676; font-weight:700;">$${p.precio}</div>
