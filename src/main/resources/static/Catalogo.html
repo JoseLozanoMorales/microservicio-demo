@@ -295,6 +295,10 @@
                 <span>Carrito</span>
                 <span class="cart-badge" id="cartBadge" style="display: none;">0</span>
             </button>
+
+            <button class="category-btn" onclick="mostrarMasVendidos()">
+                🔥 Más vendidos
+            </button>
         </div>
 
         <div class="search-filter-container">
@@ -671,6 +675,16 @@
         updateCart();
         loadProductsFromApi();
     });
+
+
+    async function mostrarMasVendidos(){
+
+    const res = await fetch('/api/productos/mas-vendidos')
+    const data = await res.json()
+
+    renderProducts(data)
+
+    }
 </script>
 </body>
 </html>

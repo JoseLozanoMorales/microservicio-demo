@@ -4,7 +4,10 @@ import com.example.microservicio.microservicio_demo.dto.ProductoCreateRequest;
 import com.example.microservicio.microservicio_demo.dto.ProductoImagenCreateRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,5 +71,49 @@ public class ProductoService {
         String sql = "CALL sp_reducir_stock(?, ?)";
 
         jdbc.update(sql, idProducto, cantidad);
+    }
+
+    public List<Map<String, Object>> obtenerProductosMasVendidos() {
+
+        String url = "http://74.249.40.210:8080/api/facturas";
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        List<Map<String, Object>> facturas = restTemplate.getForObject(url, List.class);
+
+        Map<Integer, Integer> conteo = new HashMap<>();
+
+        for (Map<String, Object> factura : facturas) {
+
+            List<Map<String, Object>> detalles = (List<Map<String, Object>>) factura.get("detalles");
+
+            for (Map<String, Object> detalle : detalles) {
+
+                Integer productoId = (Integer) detalle.get("productoId");
+                Integer cantidad = (Integer) detalle.get("cantidad");
+
+                if (productoId != null) {
+                    conteo.put(productoId, conteo.getOrDefault(productoId, 0) + cantidad);
+                }
+            }
+        }
+
+        List<Map<String, Object>> resultado = new ArrayList<>();
+
+        for (Integer idProducto : conteo.keySet()) {
+
+            Map<String, Object> producto = obtenerPorId(idProducto);
+
+            if (producto != null) {
+                producto.put("ventas", conteo.get(idProducto));
+                resultado.add(producto);
+            }
+        }
+
+        resultado.sort((a,b) ->
+                Integer.compare((Integer)b.get("ventas"), (Integer)a.get("ventas"))
+        );
+
+        return resultado;
     }
 }
