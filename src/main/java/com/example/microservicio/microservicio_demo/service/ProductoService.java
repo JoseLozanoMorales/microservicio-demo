@@ -68,7 +68,7 @@ public class ProductoService {
     //nuevo
     public void aumentarStockMultiple(List<StockUpdateRequest> productos) {
 
-    String sql = "CALL sp_aumentar_stock(?, ?, ?)";
+    String sql = "CALL sp_aumentar_stock(?, ?, CAST(? AS NUMERIC(6,2)))";
 
     for (StockUpdateRequest p : productos) {
 
