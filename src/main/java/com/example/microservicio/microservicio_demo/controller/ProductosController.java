@@ -103,6 +103,23 @@ public class ProductosController {
         }
     }
 
+    @PostMapping("/reducir-stock")
+    public ResponseEntity<?> reducirStock(
+            @RequestParam Integer idProducto,
+            @RequestParam Integer cantidad) {
+
+        // Validación
+        if (cantidad <= 0) {
+            return ResponseEntity.badRequest().body("Cantidad inválida");
+        }
+
+        try {
+            service.reducirStock(idProducto, cantidad);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
     // Nuevo endpoint para servir la imagen desde la BD
     @GetMapping("/imagenes/render/{idImagen}")
     public ResponseEntity<byte[]> renderImagen(@PathVariable Integer idImagen) {

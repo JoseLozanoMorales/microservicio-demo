@@ -62,4 +62,11 @@ public class ProductoService {
     public byte[] obtenerImagenContenido(Integer idImagen) {
         return jdbc.queryForObject("SELECT fn_obtener_imagen_blob(?)", byte[].class, idImagen);
     }
+
+    public void reducirStock(Integer idProducto, Integer cantidad) {
+
+        String sql = "CALL sp_reducir_stock(?, ?)";
+
+        jdbc.update(sql, idProducto, cantidad);
+    }
 }
