@@ -354,7 +354,7 @@
             id: (p.id_producto != null ? p.id_producto : p.id),
             name: p.nombre || '',
             description: p.descripcion || '',
-            imageUrl: p.imagen || '', // Nota: Si la API no devuelve 'imagen', esto estará vacío
+            imageUrl: "http://40.82.168.11:8090/api/productos/" + p.id_producto +"/portada/render",
             price: Number(p.precio || 0),
             stock: Number(p.stock || 0),
             discount: Number(p.descuento || 0),
@@ -622,7 +622,7 @@
             for (var i = 0; i < cart.length; i++) {
                 var item = cart[i];
                 cartHTML += '<div class="cart-item">';
-                cartHTML += '<div class="cart-item-image">' + item.image + '</div>';
+                cartHTML += '<div class="cart-item-image"><img src="' + item.image + '" style="width:60px;height:60px;object-fit:contain;"></div>';
                 cartHTML += '<div class="cart-item-info">';
                 cartHTML += '<div class="cart-item-name">' + item.name + '</div>';
                 cartHTML += '<div class="cart-item-price">$' + item.price.toFixed(2) + '</div>';
