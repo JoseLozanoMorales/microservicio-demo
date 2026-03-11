@@ -1,6 +1,7 @@
 package com.example.microservicio.microservicio_demo.controller;
 
 import com.example.microservicio.microservicio_demo.dto.ProductoCreateRequest;
+import com.example.microservicio.microservicio_demo.dto.StockUpdateRequest;
 import com.example.microservicio.microservicio_demo.service.ProductoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -103,23 +104,6 @@ public class ProductosController {
         }
     }
 
-    @PostMapping("/reducir-stock")
-    public ResponseEntity<?> reducirStock(
-            @RequestParam Integer idProducto,
-            @RequestParam Integer cantidad) {
-
-        // Validación
-        if (cantidad <= 0) {
-            return ResponseEntity.badRequest().body("Cantidad inválida");
-        }
-
-        try {
-            service.reducirStock(idProducto, cantidad);
-            return ResponseEntity.ok().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
     // Nuevo endpoint para servir la imagen desde la BD
     @GetMapping("/imagenes/render/{idImagen}")
     public ResponseEntity<byte[]> renderImagen(@PathVariable Integer idImagen) {
@@ -134,6 +118,22 @@ public class ProductosController {
         }
     }
 
+    @PutMapping("/aumentar-stock")
+    public ResponseEntity<?> aumentarStock(@RequestBody List<StockUpdateRequest> productos) {
+
+        service.aumentarStockMultiple(productos);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/reducir-stock")
+    public ResponseEntity<?> reducirStock(@RequestBody List<StockUpdateRequest> productos) {
+
+        service.reducirStockMultiple(productos);
+
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/mas-vendidos")
     public ResponseEntity<?> productosMasVendidos() {
 
@@ -144,4 +144,6 @@ public class ProductosController {
             return ResponseEntity.internalServerError().body("Error obteniendo productos más vendidos");
         }
     }
+
+
 }
