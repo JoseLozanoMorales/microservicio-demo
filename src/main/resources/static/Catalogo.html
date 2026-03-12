@@ -295,6 +295,7 @@
                 <span>Carrito</span>
                 <span class="cart-badge" id="cartBadge" style="display: none;">0</span>
             </button>
+
         </div>
 
         <div class="search-filter-container">
@@ -354,7 +355,7 @@
             id: (p.id_producto != null ? p.id_producto : p.id),
             name: p.nombre || '',
             description: p.descripcion || '',
-            imageUrl: p.imagen || '', // Nota: Si la API no devuelve 'imagen', esto estará vacío
+            imageUrl: "http://40.82.168.11:8090/api/productos/" + p.id_producto +"/portada/render",
             price: Number(p.precio || 0),
             stock: Number(p.stock || 0),
             discount: Number(p.descuento || 0),
@@ -555,7 +556,7 @@
                 name: product.name,
                 price: product.price,
                 category: product.category,
-                image: categoryEmoji(product.category),
+                image: product.imageUrl,
                 rating: product.rating,
                 stock: product.stock,
                 quantity: 1
@@ -622,7 +623,7 @@
             for (var i = 0; i < cart.length; i++) {
                 var item = cart[i];
                 cartHTML += '<div class="cart-item">';
-                cartHTML += '<div class="cart-item-image">' + item.image + '</div>';
+                cartHTML += '<div class="cart-item-image"><img src="' + item.image + '" style="width:60px;height:60px;object-fit:contain;"></div>';
                 cartHTML += '<div class="cart-item-info">';
                 cartHTML += '<div class="cart-item-name">' + item.name + '</div>';
                 cartHTML += '<div class="cart-item-price">$' + item.price.toFixed(2) + '</div>';
@@ -641,7 +642,7 @@
             cartHTML += '<span class="cart-total-label">Total:</span>';
             cartHTML += '<span class="cart-total-amount">$' + total.toFixed(2) + '</span>';
             cartHTML += '</div>';
-            cartHTML += '<button class="checkout-btn">Proceder al Pago</button>';
+            cartHTML += '<button class="checkout-btn" onclick="irAFacturacion()">Proceder al Pago</button>';
             cartHTML += '</div>';
 
             cartContent.innerHTML = cartHTML;
@@ -655,12 +656,24 @@
         overlay.classList.toggle('active');
         sidebar.classList.toggle('active');
     }
+    function irAFacturacion() {
 
+        if (cart.length === 0) {
+            alert("El carrito está vacío");
+            return;
+        }
+
+        const params = encodeURIComponent(JSON.stringify(cart));
+
+        window.location.href = `http://74.249.40.210:8080?carrito=${params}`;
+    }
     // Cargar desde tu microservicio al iniciar
     document.addEventListener('DOMContentLoaded', function () {
         updateCart();
         loadProductsFromApi();
     });
+
+
 </script>
 </body>
 </html>
