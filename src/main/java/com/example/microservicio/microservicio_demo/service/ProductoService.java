@@ -78,7 +78,7 @@ public class ProductoService {
         jdbc.update(
                 sql,
                 p.idProducto(),
-                p.cantidad() + 1,   // aquí se aumenta 1 adicional
+                p.cantidad(),
                 p.precioVenta()
         );
 
