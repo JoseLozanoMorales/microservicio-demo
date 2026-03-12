@@ -106,7 +106,6 @@
                     caracteristicas: {
                         "Condición": "Nuevo",
                         "Disponibilidad": (productoRaw.stock > 0) ? "En Stock" : "Agotado",
-                        "Garantía": "12 meses directa"
                     }
                 };
 
@@ -239,14 +238,6 @@
                                 US$${precioFinal.toFixed(2)}
                             </div>
 
-                            <!-- Envío -->
-                            <div class="flex items-start gap-2 text-sm text-gray-700 mb-4">
-                                <i class="fas fa-truck text-blue-600 mt-1"></i>
-                                <div>
-                                    <div class="font-medium">Envío GRATIS</div>
-                                    <div class="text-gray-600">Llega entre lunes, 27 de enero - martes, 28 de enero</div>
-                                </div>
-                            </div>
 
                             <!-- Stock -->
                             <div class="mb-4">
@@ -306,31 +297,9 @@
                                     Comprar ahora
                                 </button>
                             </div>
-
-                            <!-- Iconos de acción -->
-                            <div class="flex gap-4 mt-4 pt-4 border-t">
-                                <button onclick="agregarALista()" class="flex items-center gap-2 text-sm text-gray-700 hover:text-blue-600">
-                                    <i class="far fa-heart"></i>
-                                    Agregar a lista
-                                </button>
-                                <button onclick="compartir()" class="flex items-center gap-2 text-sm text-gray-700 hover:text-blue-600">
-                                    <i class="fas fa-share-alt"></i>
-                                    Compartir
-                                </button>
-                            </div>
                         </div>
 
-                        <!-- Garantías -->
-                        <div class="mt-6 space-y-3">
-                            <div class="flex items-center gap-3 text-sm text-gray-700">
-                                <i class="fas fa-shield-alt text-blue-600"></i>
-                                <span>Transacción segura</span>
-                            </div>
-                            <div class="flex items-center gap-3 text-sm text-gray-700">
-                                <i class="fas fa-undo-alt text-blue-600"></i>
-                                <span>Devoluciones fáciles dentro de 30 días</span>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
 
