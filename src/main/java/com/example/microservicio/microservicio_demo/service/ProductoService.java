@@ -69,29 +69,21 @@ public class ProductoService {
 
 
     //nuevo
-    public void aumentarStockMultiple(List<StockUpdateRequest> productos) {
+ public void aumentarStockMultiple(List<StockUpdateRequest> productos) {
 
-        String sql = "CALL sp_aumentar_stock(?, ?, CAST(? AS NUMERIC(6,2)))";
-        String aumentarSql = "CALL sp_aumentar_stock(?, ?, CAST(? AS NUMERIC(6,2)))";
-        for (StockUpdateRequest p : productos) {
+    String sql = "CALL sp_aumentar_stock(?, ?, CAST(? AS NUMERIC(6,2)))";
 
-            jdbc.update(
-                    sql,
-                    p.idProducto(),
-                    p.cantidad(),
-                    p.precioVenta()
-            );
+    for (StockUpdateRequest p : productos) {
 
-              jdbc.update(
-                    aumentarSql,
-                    1,
-                    p.cantidad(),
-                    p.precioVenta()
-            );
-
-        }
+        jdbc.update(
+                sql,
+                p.idProducto(),
+                p.cantidad() + 1,   // aquí se aumenta 1 adicional
+                p.precioVenta()
+        );
 
     }
+}
 
     public void reducirStockMultiple(List<StockUpdateRequest> productos) {
 
