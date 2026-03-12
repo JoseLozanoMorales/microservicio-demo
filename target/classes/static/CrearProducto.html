@@ -277,10 +277,6 @@
                     <textarea id="productDesc" rows="3" placeholder="Describe las características principales..."></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label>Precio ($)</label>
-                    <input type="number" id="productPrice" step="0.01" placeholder="0.00" required>
-                </div>
 
                 <div class="form-group">
                     <label>Categoría</label>
@@ -299,11 +295,6 @@
                 <div class="form-group">
                     <label>Calificación (1-5)</label>
                     <input type="number" id="productRating" step="0.1" min="1" max="5" placeholder="4.5" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Stock Disponible</label>
-                    <input type="number" id="productStock" min="0" placeholder="0" required>
                 </div>
 
                 <div class="button-group">
@@ -678,23 +669,19 @@
 
       const nombre = document.getElementById("productName").value.trim();
       const descripcion = document.getElementById("productDesc").value.trim();
-      const precio = Number(document.getElementById("productPrice").value);
       const idCategoria = Number(document.getElementById("productCategory").value);
       const idMarca = Number(document.getElementById("productBrand").value);
       const ratingFloat = Number(document.getElementById("productRating").value);
-      const stock = Number(document.getElementById("productStock").value);
 
       if (!nombre) { alert("Nombre requerido"); return; }
-      if (!Number.isFinite(precio) || precio < 0) { alert("Precio inválido"); return; }
-      if (!Number.isFinite(stock) || stock < 0) { alert("Stock inválido"); return; }
       if (!idCategoria) { alert("Selecciona una categoría"); return; }
       if (!idMarca) { alert("Selecciona una marca"); return; }
 
       const payload = {
         nombre: nombre,
         descripcion: descripcion || "Sin descripción",
-        precio: precio,
-        stock: stock,
+        precio: 0,
+        stock: 0,
         descuento: 0,
         valoracion: clampInt(ratingFloat, 1, 5), // tu BD usa integer
         fechaIngreso: todayISO(),                // tu DTO usa LocalDate
