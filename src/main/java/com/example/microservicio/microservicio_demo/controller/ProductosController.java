@@ -134,16 +134,4 @@ public class ProductosController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/mas-vendidos")
-    public ResponseEntity<?> productosMasVendidos() {
-
-        try {
-            List<Map<String, Object>> masVendidos = service.obtenerProductosMasVendidos();
-            return ResponseEntity.ok(masVendidos);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error obteniendo productos más vendidos");
-        }
-    }
-
-
 }
