@@ -2,9 +2,13 @@ package com.example.microservicio.microservicio_demo.service;
 
 import com.example.microservicio.microservicio_demo.dto.ProductoCreateRequest;
 import com.example.microservicio.microservicio_demo.dto.ProductoImagenCreateRequest;
+import com.example.microservicio.microservicio_demo.dto.StockUpdateRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,5 +65,94 @@ public class ProductoService {
 
     public byte[] obtenerImagenContenido(Integer idImagen) {
         return jdbc.queryForObject("SELECT fn_obtener_imagen_blob(?)", byte[].class, idImagen);
+    }
+
+
+    public List<Map<String, Object>> obtenerProductosMasVendidos() {
+
+        String url = "http://74.249.40.210:8080/api/facturas";
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        List<Map<String, Object>> facturas = restTemplate.getForObject(url, List.class);
+
+        Map<Integer, Integer> conteo = new HashMap<>();
+
+        for (Map<String, Object> factura : facturas) {
+
+            List<Map<String, Object>> detalles = (List<Map<String, Object>>) factura.get("detalles");
+
+            for (Map<String, Object> detalle : detalles) {
+
+                Integer productoId = (Integer) detalle.get("productoId");
+                Integer cantidad = (Integer) detalle.get("cantidad");
+
+                if (productoId != null) {
+                    conteo.put(productoId, conteo.getOrDefault(productoId, 0) + cantidad);
+                }
+            }
+        }
+
+        List<Map<String, Object>> resultado = new ArrayList<>();
+
+        for (Integer idProducto : conteo.keySet()) {
+
+            Map<String, Object> producto = obtenerPorId(idProducto);
+
+            if (producto != null) {
+                producto.put("ventas", conteo.get(idProducto));
+                resultado.add(producto);
+            }
+        }
+
+        resultado.sort((a,b) ->
+                Integer.compare((Integer)b.get("ventas"), (Integer)a.get("ventas"))
+        );
+
+        return resultado;
+    }
+
+    //nuevo
+    public void aumentarStockMultiple(List<StockUpdateRequest> productos) {
+
+        String sql = "CALL sp_aumentar_stock(?, ?, CAST(? AS NUMERIC(6,2)))";
+        String aumentarSql = "CALL sp_aumentar_stock(?, ?, CAST(? AS NUMERIC(6,2)))";
+
+        for (StockUpdateRequest p : productos) {
+
+            jdbc.update(
+                    sql,
+                    p.idProducto(),
+                    p.cantidad(),
+                    p.precioVenta()
+            );
+
+
+            jdbc.update(
+                    aumentarSql,
+                    1,
+                    p.cantidad(),
+                    p.precioVenta()
+            );
+        }
+
+    }
+    public void reducirStockMultiple(List<StockUpdateRequest> productos) {
+
+        String reducirSql = "CALL sp_reducir_stock(?, ?)";
+
+
+        for (StockUpdateRequest p : productos) {
+
+
+            jdbc.update(
+                    reducirSql,
+                    p.idProducto(),
+                    p.cantidad()
+            );
+
+
+
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.microservicio.microservicio_demo.controller;
 
 import com.example.microservicio.microservicio_demo.dto.ProductoCreateRequest;
+import com.example.microservicio.microservicio_demo.dto.StockUpdateRequest;
 import com.example.microservicio.microservicio_demo.service.ProductoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -55,12 +56,31 @@ public class ProductosController {
         // Seleccionamos ID y metadatos (sin el BLOB pesado)
         String sql = "SELECT id_imagen, id_producto, portada, galeria FROM producto_imagenes WHERE id_producto = ?";
         List<Map<String, Object>> imagenes = jdbc.queryForList(sql, id);
-        
+
         // Construimos la URL de renderizado para que el frontend pueda mostrarla
         imagenes.forEach(img -> {
             img.put("url", "/api/productos/imagenes/render/" + img.get("id_imagen"));
         });
         return imagenes;
+    }
+
+    @GetMapping("/{id}/portada/render")
+    public ResponseEntity<byte[]> renderPortada(@PathVariable Integer id) {
+        try {
+
+            byte[] imagen = jdbc.queryForObject(
+                    "SELECT fn_obtener_portada_producto(?)",
+                    byte[].class,
+                    id
+            );
+
+            return ResponseEntity.ok()
+                    .contentType(org.springframework.http.MediaType.IMAGE_JPEG)
+                    .body(imagen);
+
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/imagenes/{idImagen}")
@@ -110,4 +130,34 @@ public class ProductosController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PutMapping("/aumentar-stock")
+    public ResponseEntity<?> aumentarStock(@RequestBody List<StockUpdateRequest> productos) {
+
+        service.aumentarStockMultiple(productos);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/reducir-stock")
+    public ResponseEntity<?> reducirStock(@RequestBody List<StockUpdateRequest> productos) {
+
+        service.reducirStockMultiple(productos );
+
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/mas-vendidos")
+    public ResponseEntity<?> productosMasVendidos() {
+
+        try {
+            List<Map<String, Object>> masVendidos = service.obtenerProductosMasVendidos();
+            return ResponseEntity.ok(masVendidos);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error obteniendo productos más vendidos");
+        }
+    }
+
+
 }
